@@ -163,6 +163,16 @@ Lst_Filter = list => filter => Lst_RightReduce(list)(
 )(
     tail => Tail(tail)
 )
+// Lst<T, L> => (T => Bit) => Int
+Lst_Count = list => filter => Lst_RightReduce(list)(
+    elem => total => Bit_If(filter(elem))(
+        ()=>Int_Increment(total)
+    )(
+        ()=>total
+    )
+)(
+    tail => Zero
+)
 // Lst<Lst<T, _>, L>  => Lst<T, L>
 Lst_Flatten = list => Lst_RightReduce(list)(
     elem => total => Lst_RightReduce(elem)(
@@ -588,6 +598,8 @@ bits => Expr(False)(
 )(False)(secondSorted = Lst_InsertionSort(secondInts)(Int_Greater)
 )(False)(zip = Lst_ZipUnchecked(firstSorted)(secondSorted)
 )(False)(diff = Lst_Map(zip)(tup => Tup_Let(tup)(a => b => Int_Abs(Int_Sub(a)(b))))
-)(False)(total = Lst_RightReduce(diff)(e => t => Int_Add(e)(t))(tail => Zero)
-)(False)(outString = Int_ToString(total)
+)(False)(part1 = Lst_RightReduce(diff)(e => t => Int_Add(e)(t))(tail => Zero)
+)(False)(duplicates = Lst_Map(firstInts)(i => Int_Mul(i)(Lst_Count(secondInts)(j => Int_Equals(i)(j))))
+)(False)(part2 = Lst_RightReduce(duplicates)(e => t => Int_Add(e)(t))(tail => Zero)
+)(False)(outString = Lst_Concat(Int_ToString(part1))(List(Newline)(Int_ToString(part2)))
 )(True)(Str_ToBits(outString))
